@@ -1,6 +1,8 @@
 # dsh-genui
 
-[English](https://github.com/lhuans/dsh-genui/blob/main/README.md) · **简体中文**
+> 基于 [lhuans/dsh-genui](https://github.com/lhuans/dsh-genui) 0.3.1 的 Actvero fork：通过全局设置控制生成提示词，移除输入框里的星形按钮。
+
+[English](./README.md) · **简体中文**
 
 > 让 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的回答，从「一段文字」变成「一个能点的界面」。
 
@@ -132,7 +134,7 @@
 
 DSH 里的助手本身就能执行终端命令。打开对话，直接跟它说：
 
-> 帮我把 npm 上的 dsh-genui 插件装到 web profile，执行 `dsh plugin --profile web add dsh-genui`
+> 帮我把 npm 上的 dsh-genui 插件装到 web profile，执行 `dsh plugin --profile web add github:heyjianhang/dsh-genui-global`
 
 它会把命令跑给你看，中间可能要你点一下确认。跑完之后，按下面「重启」那步操作即可。
 
@@ -141,10 +143,10 @@ DSH 里的助手本身就能执行终端命令。打开对话，直接跟它说�
 新开一个终端：
 
 ```sh
-dsh plugin --profile web add dsh-genui
+dsh plugin --profile web add github:heyjianhang/dsh-genui-global
 ```
 
-这条命令从 npm 公开仓库拉取安装，不需要 npm 账号，也不需要 clone 仓库。
+这条命令从 GitHub 安装 Actvero fork，包含已构建的宿主、客户端和渲染器文件。桌面版请通过「插件」页添加同一 GitHub 来源，然后重启应用。
 
 ### 装完必须重启（这一步别跳）
 
@@ -157,7 +159,7 @@ DSH 在启动时就锁定了当前的插件集合，所以**装完插件不重�
 
 ### GenUI 提示词
 
-GenUI 授权提示词默认开启，并且会记住你上一次的选择：DSH 重启后保持关闭或开启。想临时关闭时，点击输入框工具行里的星形按钮即可；它只控制发给模型的提示词，卡片渲染能力始终保留。
+GenUI 生成提示词按当前 DSH profile 全局控制。在设置中修改 `genui` 条目的 `promptEnabled`，即可对所有会话统一启用或关闭；重启后保留选择。输入框不再显示星形按钮，也没有会话级开关。关闭生成提示词时，已有卡片仍可渲染。需要关闭整个插件时，在「插件 → 已安装」中关闭 dsh-genui 即可。
 
 ### 验证装好了没
 
@@ -197,7 +199,7 @@ DSH 管理插件依赖 pnpm。执行 `corepack enable`（或 `npm i -g pnpm`）�
 
 **AI 不主动用界面回答？**
 
-如果星形开关是关闭的，模型不会收到 GenUI 提示词。重新打开开关，再说一句「用界面/表单/图表的方式给我」就行。
+在「插件 → 已安装」中确认插件已开启，并将全局配置 `genui.promptEnabled` 设为 `true`，再说一句「用界面/表单/图表的方式给我」。
 
 **会不会影响原来的用法？**
 
@@ -213,7 +215,7 @@ DSH 管理插件依赖 pnpm。执行 `corepack enable`（或 `npm i -g pnpm`）�
 
 一句话：AI 不再只写文字，它还会写一段「界面描述」，浏览器把这段描述渲染成真正的组件。
 
-具体一点：插件默认给模型加一段提示词，教它在需要的时候输出一段结构化的 JSON（写在 `schemaJson` 代码块里）；输入框里的星形开关控制是否加这段提示词。DSH 网页端拿到 JSON 后，交给渲染器变成实际组件。整个过程是流式的，AI 写到哪、界面就渲染到哪，不用等它把话说完。
+具体一点：插件默认给模型加一段提示词，教它在需要的时候输出一段结构化的 JSON（写在 `schemaJson` 代码块里）；全局配置 `promptEnabled` 控制是否加这段提示词，对所有会话统一生效。DSH 网页端拿到 JSON 后，交给渲染器变成实际组件。整个过程是流式的，AI 写到哪、界面就渲染到哪，不用等它把话说完。
 
 组件本身来自 [OpenTiny GenUI SDK](https://opentiny.design/genui-sdk) 和 OpenTiny Vue 组件库——这是 OpenTiny 团队做的生成式 UI 方案，一整套「让大模型输出界面」的规范和渲染引擎。dsh-genui 做的事情，是把它接到了 DSH 的对话流里。
 

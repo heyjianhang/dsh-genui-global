@@ -40,7 +40,6 @@ export interface Messages {
     title: string
     steps: string[]
     enable: string
-    toggleImageAlt: string
     verify: string
     remove: string
   }
@@ -143,7 +142,7 @@ export const en: Messages = {
   },
   howItWorks: {
     title: 'How it works',
-    body: 'The plugin adds a prompt that teaches the model to output structured JSON in `schemaJson` code blocks when a UI helps. The composer sparkle toggle controls this guidance and starts on. DSH renders that JSON into real components via OpenTiny GenUI SDK — streaming as the model writes, and keeping already rendered cards visible if generation is paused. Components are whitelisted; no arbitrary HTML or scripts.',
+    body: 'The plugin adds a prompt that teaches the model to output structured JSON in `schemaJson` code blocks when a UI helps. The profile-wide promptEnabled setting controls this guidance and starts on. DSH renders that JSON into real components via OpenTiny GenUI SDK — streaming as the model writes, and keeping already rendered cards visible if generation is paused. Components are whitelisted; no arbitrary HTML or scripts.',
   },
   install: {
     title: 'Install',
@@ -153,8 +152,7 @@ export const en: Messages = {
       'Run the install command above in a new terminal',
       'Stop DSH (Ctrl+C), restart with `dsh web`, refresh browser, open a new session',
     ],
-    enable: 'GenUI authoring starts on by default and remembers your last choice after DSH restarts. Use the sparkle button in the composer tool row to turn it off if needed; card rendering stays installed.',
-    toggleImageAlt: 'DSH composer showing the sparkle toggle with the tooltip "GenUI prompt off".',
+    enable: 'GenUI authoring is controlled globally through the genui entry\'s promptEnabled setting. It applies to all conversations and persists across restarts. There is no composer button; card rendering stays available when authoring is off.',
     verify: 'In a new session, say "generate a calculator". If keys appear and work, you\'re set.',
     remove: 'Remove: `dsh plugin --profile web remove dsh-genui` (restart required).',
   },
@@ -163,7 +161,7 @@ export const en: Messages = {
     items: [
       {
         q: 'Still seeing code blocks?',
-        a: 'Check the sparkle toggle first, then the restart. Stop DSH, restart, refresh, and open a new session.',
+        a: 'Check that the plugin and global promptEnabled setting are enabled, then restart. Stop DSH, restart, refresh, and open a new session.',
       },
       {
         q: 'pnpm not found?',
@@ -171,7 +169,7 @@ export const en: Messages = {
       },
       {
         q: 'AI not using UI by default?',
-        a: 'It is enabled by default. If it gets stuck on text, make sure the sparkle toggle is on, then ask: "answer with a chart/form/interface".',
+        a: 'It is enabled by default. If it gets stuck on text, make sure the global promptEnabled setting is on, then ask: "answer with a chart/form/interface".',
       },
       {
         q: 'Breaks plain text replies?',
@@ -282,7 +280,7 @@ export const zh: Messages = {
   },
   howItWorks: {
     title: '它是怎么做到的',
-    body: '插件给模型加一段提示词，教它在需要时输出结构化 JSON（写在 `schemaJson` 代码块里）；输入框里的星形开关控制这段提示词，并且默认开启。DSH 网页端拿到 JSON 后，通过 OpenTiny GenUI SDK 渲染成真实组件，流式输出，写到哪渲染到哪。如果中途暂停，已经渲染出的卡片会保留在界面上。组件来自白名单，塞不进 HTML 或脚本。',
+    body: '插件给模型加一段提示词，教它在需要时输出结构化 JSON（写在 `schemaJson` 代码块里）；全局配置 promptEnabled 控制这段提示词，对所有会话生效，默认开启。DSH 网页端拿到 JSON 后，通过 OpenTiny GenUI SDK 渲染成真实组件，流式输出，写到哪渲染到哪。如果中途暂停，已经渲染出的卡片会保留在界面上。组件来自白名单，塞不进 HTML 或脚本。',
   },
   install: {
     title: '怎么装',
@@ -292,8 +290,7 @@ export const zh: Messages = {
       '在新终端执行上面的安装命令',
       '回到 DSH 终端 Ctrl+C 停掉，重新 `dsh web`，刷新浏览器，开新会话',
     ],
-    enable: 'GenUI 授权提示词默认开启，并会记住你上一次的选择，DSH 重启后保持不变。需要临时关闭时，点击输入框工具行里的星形按钮即可；卡片渲染能力始终保留。',
-    toggleImageAlt: 'DSH 输入框截图：星形按钮 hover 时显示「GenUI prompt off」提示。',
+    enable: 'GenUI 生成提示词通过 genui 条目的 promptEnabled 配置全局控制，对所有会话统一生效，重启后保留。输入框不显示星形按钮；关闭生成提示词时已有卡片仍可渲染。',
     verify: '在新会话里说「生成一个计算器」。如果出现能按的计算器，就成了。',
     remove: '卸载：`dsh plugin --profile web remove dsh-genui`（同样需要重启）。',
   },
@@ -302,7 +299,7 @@ export const zh: Messages = {
     items: [
       {
         q: '装完还是显示成代码块？',
-        a: '先检查星形开关，再检查重启。停服务 → 重启 → 刷新 → 开新会话。',
+        a: '先确认插件及全局 promptEnabled 配置已开启，再检查重启。停服务 → 重启 → 刷新 → 开新会话。',
       },
       {
         q: '提示 pnpm not found？',
@@ -310,7 +307,7 @@ export const zh: Messages = {
       },
       {
         q: 'AI 不主动用界面？',
-        a: 'GenUI 提示词默认开启。如果它一直用文字回答，先确认星形开关已打开，再说「用界面/表单/图表的方式给我」。',
+        a: 'GenUI 提示词默认开启。如果它一直用文字回答，先确认全局 promptEnabled 配置已开启，再说「用界面/表单/图表的方式给我」。',
       },
       {
         q: '会不会影响原来的用法？',

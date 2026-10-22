@@ -12,6 +12,7 @@ import {
   createGenuiPromptControlHandler,
   createPersistedPromptControl,
   openPromptSettings,
+  readPromptEnabled,
   type GenuiPromptControl,
   type GenuiPromptSettings,
   type PromptSettingsHost,
@@ -27,6 +28,12 @@ import {
 
 export const name = 'dsh-genui'
 export const inject = ['systemPrompt', 'webServer']
+
+declare module '@deepseek-ai/cordis' {
+  interface Events {
+    'loader/volatile-update'(paths: readonly (readonly string[])[]): void
+  }
+}
 
 declare global {
   namespace Schemastery {
@@ -51,24 +58,26 @@ export interface Config {
   sectionOrder: number
   /** Stable section name in the prompt registry. */
   sectionName: string
-  /** Whether the authoring prompt starts enabled. Live-editable on DSH 0.2. */
+  /** Enable authoring guidance for every conversation in this profile. */
   promptEnabled: boolean
 }
 
 export const Config: z<Config> = z.object({
   sectionOrder: z.number().default(80),
   sectionName: z.string().default('genui:cards'),
-  promptEnabled: z.boolean().default(true).extra('volatile', true),
+  promptEnabled: z.boolean().default(true)
+    .description('全局启用 GenUI 生成提示词 / Enable GenUI authoring for all conversations')
+    .extra('volatile', true),
 })
 
-/** Settings schema for the user's last prompt-toggle choice. */
+/** Legacy DSH 0.1 settings schema for the global authoring preference. */
 export const PromptSettings: z<GenuiPromptSettings> = z.object({
   enabled: z.boolean().default(true),
 })
 
 /**
  * Create the GenUI authoring guidance for the host system-prompt registry.
- * @returns The prompt text to register while the composer toggle is enabled.
+ * @returns The prompt text to register while global authoring is enabled.
  */
 function genuiPromptText(): string {
   return adjustAuthoringPrompt(genPrompt('Vue', materialsMeta, {
@@ -93,7 +102,7 @@ function genuiPromptText(): string {
 }
 
 /**
- * Register the GenUI runtime and the authoring prompt toggle.
+ * Register the GenUI runtime and profile-wide authoring preference.
  * @param ctx - Cordis context with `systemPrompt` injected.
  * @param config - validated plugin config.
  */
@@ -118,16 +127,25 @@ export function apply(ctx: Context, config: Config): void {
     persisted: () => persistedAttached,
   }
 
-  // Authoring starts on; disposal keeps a reloaded plugin from leaking the section.
+  // Honor the global config before optional settings attach, including on reload.
+  // Disposal removes the section without persisting a new user preference.
   ctx.effect(() => {
-    promptControl.set(true)
+    promptControl.set(readPromptEnabled(config.promptEnabled))
     return () => promptControl.set(false)
   }, 'dsh-genui: prompt toggle state')
+
+  // DSH 0.2 updates volatile references in place without remounting the plugin.
+  // Apply the saved global choice directly, without writing it back again.
+  ctx.on('loader/volatile-update', paths => {
+    if (paths.some(path => path.length === 0 || path[0] === 'promptEnabled')) {
+      promptControl.set(readPromptEnabled(config.promptEnabled))
+    }
+  })
 
   ctx.inject(['settings'], (settingsCtx) => {
     const settings = (settingsCtx as Context & { settings: PromptSettingsHost }).settings
     const scope = openPromptSettings(settings, {
-      configEnabled: config.promptEnabled !== false,
+      configEnabled: readPromptEnabled(config.promptEnabled),
       schema: PromptSettings,
     })
     if (scope === undefined) {
@@ -136,8 +154,8 @@ export function apply(ctx: Context, config: Config): void {
     }
     ctx.logger.debug('dsh-genui: settings service attached')
     settingsCtx.effect(() => {
-      // Persist explicit clicks, but never write the unload-time cleanup state.
-      const persistedControl = createPersistedPromptControl(promptControl, scope, true, error => {
+      // Keep the global preference; never persist unload-time cleanup state.
+      const persistedControl = createPersistedPromptControl(promptControl, scope, readPromptEnabled(config.promptEnabled), error => {
         ctx.logger.warn('dsh-genui: failed to persist prompt state', error)
       }, enabled => {
         ctx.logger.debug('dsh-genui: persisting prompt state enabled=%s', String(enabled))

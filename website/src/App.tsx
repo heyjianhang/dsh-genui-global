@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from './i18n'
 
-const INSTALL_CMD = 'dsh plugin --profile web add dsh-genui'
+const INSTALL_CMD = 'dsh plugin --profile web add github:heyjianhang/dsh-genui-global'
 
 export default function App() {
   const { t, toggleLocale } = useI18n()
@@ -42,7 +42,7 @@ function Header({
         dsh-genui
       </a>
       <nav className="nav">
-        <a href="https://github.com/lhuans/dsh-genui" target="_blank" rel="noopener noreferrer">
+        <a href="https://github.com/heyjianhang/dsh-genui-global" target="_blank" rel="noopener noreferrer">
           GitHub
         </a>
         <a href="https://www.npmjs.com/package/dsh-genui" target="_blank" rel="noopener noreferrer">
@@ -203,13 +203,6 @@ function Install() {
             ))}
           </ol>
           <p>{t.install.enable}</p>
-          <figure className="install-figure">
-            <img
-              src="prompt-toggle.webp"
-              alt={t.install.toggleImageAlt}
-              loading="lazy"
-            />
-          </figure>
           <p>{t.install.verify}</p>
           <p>{t.install.remove}</p>
         </div>

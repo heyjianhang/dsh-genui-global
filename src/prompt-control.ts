@@ -1,5 +1,13 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
+/** Read both ordinary booleans and DSH 0.2's live config references. */
+export function readPromptEnabled(value: unknown): boolean {
+  if (value !== null && typeof value === 'object' && 'get' in value && typeof value.get === 'function') {
+    return value.get() !== false
+  }
+  return value !== false
+}
+
 /** The minimal system-prompt registry face used by the toggle. */
 export interface GenuiSystemPrompt {
   section(section: { name: string; order: number; text: string }): () => void

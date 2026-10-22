@@ -1,6 +1,8 @@
 # dsh-genui
 
-**English** · [简体中文](https://github.com/lhuans/dsh-genui/blob/main/README.zh-CN.md)
+> Actvero fork of [lhuans/dsh-genui](https://github.com/lhuans/dsh-genui), based on 0.3.1. Authoring is controlled globally; the composer sparkle button is removed.
+
+**English** · [简体中文](./README.zh-CN.md)
 
 > Turn [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) replies from a wall of text into an interface you can actually click.
 
@@ -132,7 +134,7 @@ When you're not sure what to ask for, just say "answer me with an interface" and
 
 The DSH assistant can run shell commands. Open a conversation and tell it:
 
-> Install the dsh-genui plugin from npm into the web profile: run `dsh plugin --profile web add dsh-genui`
+> Install the dsh-genui plugin from npm into the web profile: run `dsh plugin --profile web add github:heyjianhang/dsh-genui-global`
 
 It will run the command in front of you, possibly asking you to approve it. Then follow the restart steps below.
 
@@ -141,10 +143,10 @@ It will run the command in front of you, possibly asking you to approve it. Then
 In a new terminal:
 
 ```sh
-dsh plugin --profile web add dsh-genui
+dsh plugin --profile web add github:heyjianhang/dsh-genui-global
 ```
 
-This pulls from the public npm registry — no npm account, no cloning the repo.
+This installs the Actvero fork from GitHub, including prebuilt host, client, and rendering runtime artifacts.
 
 ### Restart afterwards (don't skip this)
 
@@ -157,7 +159,7 @@ DSH locks in its plugin set at startup, so **nothing changes in the UI until you
 
 ### GenUI authoring prompt
 
-GenUI authoring starts on by default and remembers your last choice across DSH restarts. Use the sparkle button in the composer tool row if you want to turn the authoring guidance off. Card rendering stays installed either way.
+GenUI authoring is controlled globally for the current DSH profile. In Settings, set the `genui` entry's `promptEnabled` field to enable or disable authoring guidance for every conversation. The choice is saved across restarts; there is no composer button or per-conversation switch. Card rendering stays available when authoring guidance is off. To disable the entire plugin, use its switch on Plugins → Installed.
 
 ### Check that it worked
 
@@ -206,7 +208,7 @@ DSH needs pnpm to manage plugins. Run `corepack enable` (or `npm i -g pnpm`), th
 
 **The AI doesn't use interfaces on its own?**
 
-If the sparkle toggle is off, the model has no GenUI authoring guidance. Turn it back on, then say something like "give me a form / chart / interface."
+Check that the plugin is enabled on Plugins → Installed and that the global `genui.promptEnabled` setting is true, then say something like "give me a form / chart / interface."
 
 **Does this change how DSH normally works?**
 
@@ -222,7 +224,7 @@ Yes. Run `dsh plugin remove`, restart, and DSH is back to its original state wit
 
 In short: the model no longer writes only text — it also writes a *description of an interface*, and the browser renders that description into real components.
 
-A bit more detail: the plugin adds a prompt section teaching the model to emit structured JSON (inside a `schemaJson` code block) when an interface would help. The composer sparkle toggle controls that section and is enabled by default. The DSH web client picks up the JSON and hands it to a renderer. It's streaming, so the interface appears as the model writes it — no waiting for the full reply.
+A bit more detail: the plugin adds a prompt section teaching the model to emit structured JSON (inside a `schemaJson` code block) when an interface would help. The global `promptEnabled` setting controls that section and is enabled by default. The DSH web client picks up the JSON and hands it to a renderer. It's streaming, so the interface appears as the model writes it — no waiting for the full reply.
 
 The components come from [OpenTiny GenUI SDK](https://opentiny.design/genui-sdk) and the OpenTiny Vue library — OpenTiny's generative-UI stack, a spec plus rendering engine for letting LLMs produce interfaces. dsh-genui wires that into the DSH conversation flow.
 
